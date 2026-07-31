@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(Move-Item \"C:/Users/User/Herd/LescoKids/app/Enums/Enums/LessonStatus.php\" \"C:/Users/User/Herd/LescoKids/app/Enums/LessonStatus.php\")",
+      "Bash(Move-Item \"C:/Users/User/Herd/LescoKids/app/Enums/Enums/GameType.php\" \"C:/Users/User/Herd/LescoKids/app/Enums/GameType.php\")",
+      "Bash(Remove-Item \"C:/Users/User/Herd/LescoKids/app/Enums/Enums\" -Recurse)",
+      "Bash(vendor/bin/pint --dirty --format agent)",
+      "Skill(livewire-development)",
+      "Skill(pest-testing)",
+      "mcp__laravel-boost__search-docs",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Herd\\\\LescoKids\" -Recurse -Filter \"*.php\")",
+      "Bash(Sort-Object LastWriteTime -Descending)",
+      "Bash(Select-Object -First 20)",
+      "Bash(Select-Object FullName, LastWriteTime)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('require',{}\\).get\\('livewire/flux','not found'\\)\\)\")",
+      "Bash(vendor/bin/pint *)",
+      "mcp__laravel-boost__database-schema"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ]
+}
