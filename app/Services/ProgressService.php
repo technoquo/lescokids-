@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Badge;
 use App\Models\ChildProfile;
 use App\Models\GameAttempt;
 use App\Models\Lesson;
@@ -40,8 +39,6 @@ class ProgressService
                 'lesson_id' => $lesson->id,
             ]);
 
-            $isFirstCompletion = $progress->status !== 'completado';
-
             if ($attempt->score > $progress->best_score) {
                 $progress->best_score = $attempt->score;
             }
@@ -55,7 +52,7 @@ class ProgressService
 
             $progress->save();
 
-            if ($isFirstCompletion && $progress->status === 'completado') {
+            if ($progress->status === 'completado') {
                 $unlockedNext = $this->unlockNextLesson($childProfileId, $lesson);
             }
         });
@@ -83,12 +80,12 @@ class ProgressService
             return false;
         }
 
-        Progress::firstOrCreate(
+        $nextProgress = Progress::firstOrCreate(
             ['child_profile_id' => $childProfileId, 'lesson_id' => $nextLesson->id],
             ['status' => 'no_iniciado', 'best_score' => 0, 'unlocked_at' => Carbon::now()],
         );
 
-        return true;
+        return $nextProgress->wasRecentlyCreated;
     }
 
     /**

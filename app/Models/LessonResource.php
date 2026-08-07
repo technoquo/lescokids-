@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property int $lesson_id
- * @property string $type
- * @property string $url
+ * @property string|null $video_url
+ * @property string|null $image_url
  * @property string|null $description
  */
-#[Fillable(['lesson_id', 'type', 'url', 'description'])]
+#[Fillable(['lesson_id', 'video_url', 'image_url', 'description'])]
 class LessonResource extends Model
 {
     /** @use HasFactory<LessonResourceFactory> */

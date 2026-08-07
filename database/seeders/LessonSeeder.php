@@ -21,9 +21,9 @@ class LessonSeeder extends Seeder
             ?? User::firstOrCreate(
                 ['email' => 'admin@lescokids.cr'],
                 [
-                    'name'              => 'Admin LescoKids',
-                    'password'          => Hash::make('password'),
-                    'role'              => UserRole::Admin,
+                    'name' => 'Admin LescoKids',
+                    'password' => Hash::make('password'),
+                    'role' => UserRole::Admin,
                     'email_verified_at' => now(),
                 ]
             );
@@ -86,21 +86,21 @@ class LessonSeeder extends Seeder
                 $lesson = Lesson::firstOrCreate(
                     ['category_id' => $category->id, 'order' => $data['order']],
                     [
-                        'title'            => $data['title'],
-                        'description'      => "Aprende a hacer la seña de {$data['title']} en LESCO.",
+                        'title' => $data['title'],
+                        'description' => "Aprende a hacer la seña de {$data['title']} en LESCO.",
                         'difficulty_level' => $data['difficulty_level'],
-                        'status'           => LessonStatus::Publicado,
-                        'created_by'       => $admin->id,
-                        'approved_by'      => $admin->id,
+                        'status' => LessonStatus::Publicado,
+                        'created_by' => $admin->id,
+                        'approved_by' => $admin->id,
                     ]
                 );
 
-                // Add one video resource if missing
+                // Add one resource if missing
                 if ($lesson->resources()->doesntExist()) {
                     LessonResource::create([
-                        'lesson_id'   => $lesson->id,
-                        'type'        => 'video',
-                        'url'         => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                        'lesson_id' => $lesson->id,
+                        'video_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                        'image_url' => null,
                         'description' => "Video de la seña: {$lesson->title}",
                     ]);
                 }
@@ -109,13 +109,13 @@ class LessonSeeder extends Seeder
                 if ($lesson->games()->doesntExist()) {
                     Game::create([
                         'lesson_id' => $lesson->id,
-                        'type'      => GameType::SeleccionMultiple,
-                        'config'    => [
+                        'type' => GameType::SeleccionMultiple,
+                        'config' => [
                             'questions' => array_map(fn ($i) => [
-                                'id'            => $i,
-                                'question'      => "Pregunta {$i} sobre \"{$lesson->title}\"",
-                                'image_url'     => null,
-                                'options'       => ['Seña 1', 'Seña 2', 'Seña 3', 'Seña 4'],
+                                'id' => $i,
+                                'question' => "Pregunta {$i} sobre \"{$lesson->title}\"",
+                                'image_url' => null,
+                                'options' => ['Seña 1', 'Seña 2', 'Seña 3', 'Seña 4'],
                                 'correct_index' => 0,
                             ], range(1, 5)),
                         ],

@@ -15,7 +15,9 @@
       "Bash(Select-Object FullName, LastWriteTime)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('require',{}\\).get\\('livewire/flux','not found'\\)\\)\")",
       "Bash(vendor/bin/pint *)",
-      "mcp__laravel-boost__database-schema"
+      "mcp__laravel-boost__database-schema",
+      "Skill(fluxui-development)",
+      "mcp__laravel-boost__database-query"
     ]
   },
   "enabledMcpjsonServers": [

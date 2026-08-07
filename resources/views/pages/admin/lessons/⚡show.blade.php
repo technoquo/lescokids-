@@ -24,8 +24,8 @@ new #[Title('Editar lección')] class extends Component
 
     // Resource form
     public bool $showResourceForm = false;
-    public string $resourceType = 'video';
-    public string $resourceUrl = '';
+    public string $resourceVideoUrl = '';
+    public string $resourceImageUrl = '';
     public string $resourceDescription = '';
 
     public function mount(Lesson $lesson): void
@@ -82,18 +82,18 @@ new #[Title('Editar lección')] class extends Component
     public function addResource(): void
     {
         $this->validate([
-            'resourceType'        => 'required|in:video,imagen,audio',
-            'resourceUrl'         => 'required|url|max:500',
+            'resourceVideoUrl'    => 'nullable|url|max:500|required_without:resourceImageUrl',
+            'resourceImageUrl'    => 'nullable|url|max:500|required_without:resourceVideoUrl',
             'resourceDescription' => 'nullable|string|max:200',
         ]);
 
         $this->lesson->resources()->create([
-            'type'        => $this->resourceType,
-            'url'         => $this->resourceUrl,
+            'video_url'   => $this->resourceVideoUrl ?: null,
+            'image_url'   => $this->resourceImageUrl ?: null,
             'description' => $this->resourceDescription ?: null,
         ]);
 
-        $this->reset('resourceType', 'resourceUrl', 'resourceDescription');
+        $this->reset('resourceVideoUrl', 'resourceImageUrl', 'resourceDescription');
         $this->showResourceForm = false;
         Flux::toast(variant: 'success', text: 'Recurso agregado.');
     }
@@ -184,12 +184,8 @@ new #[Title('Editar lección')] class extends Component
         <flux:modal wire:model="showResourceForm" name="resource-form">
             <div class="space-y-4 p-4">
                 <flux:heading>Nuevo recurso</flux:heading>
-                <flux:select wire:model="resourceType" label="Tipo">
-                    <flux:select.option value="video">Video</flux:select.option>
-                    <flux:select.option value="imagen">Imagen</flux:select.option>
-                    <flux:select.option value="audio">Audio</flux:select.option>
-                </flux:select>
-                <flux:input wire:model="resourceUrl" label="URL" type="url" required />
+                <flux:input wire:model="resourceVideoUrl" label="URL del video (opcional)" type="url" placeholder="https://www.youtube.com/embed/..." />
+                <flux:input wire:model="resourceImageUrl" label="URL de la imagen (opcional)" type="url" placeholder="https://..." />
                 <flux:input wire:model="resourceDescription" label="Descripción (opcional)" />
                 <div class="flex justify-end gap-2">
                     <flux:button wire:click="$set('showResourceForm', false)">Cancelar</flux:button>
@@ -199,14 +195,27 @@ new #[Title('Editar lección')] class extends Component
         </flux:modal>
 
         @if ($this->resources->isEmpty())
-            <flux:text class="text-zinc-500">Sin recursos aún. Agrega al menos un video de seña antes de publicar.</flux:text>
+            <flux:text class="text-zinc-500">Sin recursos aún. Agrega al menos un video o imagen de seña antes de publicar.</flux:text>
         @else
             <ul class="space-y-2">
                 @foreach ($this->resources as $resource)
-                    <li :key="$resource->id" class="flex items-center justify-between rounded border p-3">
-                        <div>
-                            <flux:badge>{{ ucfirst($resource->type) }}</flux:badge>
-                            <span class="ml-2 text-sm">{{ $resource->description ?? $resource->url }}</span>
+                    <li class="flex items-start justify-between rounded border p-3">
+                        <div class="space-y-1">
+                            @if ($resource->description)
+                                <p class="text-sm font-medium">{{ $resource->description }}</p>
+                            @endif
+                            @if ($resource->video_url)
+                                <div class="flex items-center gap-2">
+                                    <flux:badge color="blue">Video</flux:badge>
+                                    <span class="truncate text-xs text-zinc-500">{{ $resource->video_url }}</span>
+                                </div>
+                            @endif
+                            @if ($resource->image_url)
+                                <div class="flex items-center gap-2">
+                                    <flux:badge color="green">Imagen</flux:badge>
+                                    <span class="truncate text-xs text-zinc-500">{{ $resource->image_url }}</span>
+                                </div>
+                            @endif
                         </div>
                         <flux:button size="sm" variant="danger" wire:click="deleteResource({{ $resource->id }})" wire:confirm="¿Eliminar este recurso?">
                             Eliminar

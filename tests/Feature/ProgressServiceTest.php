@@ -1,8 +1,6 @@
 <?php
 
 use App\Enums\GameType;
-use App\Enums\LessonStatus;
-use App\Enums\UserRole;
 use App\Models\Category;
 use App\Models\ChildProfile;
 use App\Models\Game;
@@ -132,6 +130,40 @@ test('best score is updated when a higher score is achieved', function () {
     $result = $service->recordAttempt($attempt);
 
     expect($result['progress']->best_score)->toBe(100);
+});
+
+test('replaying a seeder-completed lesson still unlocks the next one', function () {
+    $service = app(ProgressService::class);
+    $category = Category::factory()->create();
+    $lesson1 = makePublishedLesson($category, 1);
+    $lesson2 = makePublishedLesson($category, 2);
+    $child = ChildProfile::factory()->create();
+    $game = makeGame($lesson1);
+
+    // Simulates seeder: lesson already completado but next lesson never unlocked
+    Progress::create(['child_profile_id' => $child->id, 'lesson_id' => $lesson1->id, 'status' => 'completado', 'best_score' => 100, 'unlocked_at' => now(), 'completed_at' => now()]);
+
+    $attempt = makeAttempt($child, $game, correct: 10, wrong: 0); // 100%
+    $result = $service->recordAttempt($attempt);
+
+    expect($result['unlocked_next'])->toBeTrue();
+    expect(Progress::where('child_profile_id', $child->id)->where('lesson_id', $lesson2->id)->exists())->toBeTrue();
+});
+
+test('completing same lesson twice does not re-toast unlocked_next', function () {
+    $service = app(ProgressService::class);
+    $category = Category::factory()->create();
+    $lesson1 = makePublishedLesson($category, 1);
+    $lesson2 = makePublishedLesson($category, 2);
+    $child = ChildProfile::factory()->create();
+    $game = makeGame($lesson1);
+
+    Progress::create(['child_profile_id' => $child->id, 'lesson_id' => $lesson1->id, 'status' => 'no_iniciado', 'best_score' => 0, 'unlocked_at' => now()]);
+
+    $service->recordAttempt(makeAttempt($child, $game, correct: 10, wrong: 0)); // first completion → unlocks
+    $result = $service->recordAttempt(makeAttempt($child, $game, correct: 10, wrong: 0)); // second → already unlocked
+
+    expect($result['unlocked_next'])->toBeFalse();
 });
 
 test('seedInitialProgress unlocks the first lesson of each category', function () {
